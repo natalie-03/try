@@ -29,7 +29,7 @@ jobs:
 
     - name: Run Dcard crawler
       run: |
-        python scripts/Dcard_crawl.py data/
+        python scripts/Dcard_crawler.py data/
 
     - name: Commit and push CSV files
       run: |
