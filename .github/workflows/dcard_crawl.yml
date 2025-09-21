@@ -1,29 +1,34 @@
-name: Dcard爬蟲自動執行
+name: Dcard Crawler
 
 on:
   schedule:
-    # 每天 UTC 10:00 執行 → 台灣時間每天 18:00
-    - cron: '0 10 * * *'
-  workflow_dispatch:  # 也可以手動觸發
+    - cron: '0 18 * * *'  # 每天下午 6 點執行
+  workflow_dispatch:     # 手動觸發也可以
 
 jobs:
-  run-crawler:
+  crawl:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 取得程式碼
+    - name: 取得 repo
       uses: actions/checkout@v3
 
     - name: 安裝 Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.11
+        python-version: '3.11'
 
     - name: 安裝套件
       run: |
-        python -m pip install --upgrade pip
-        pip install selenium undetected-chromedriver pandas tqdm keyboard
+        pip install --upgrade pip
+        pip install undetected-chromedriver selenium webdriver-manager pandas keyboard tqdm
 
     - name: 執行爬蟲
       run: |
-        python Dcard爬蟲.py
+        python scripts/Dcard爬蟲.py
+
+    - name: 上傳 CSV
+      uses: actions/upload-artifact@v3
+      with:
+        name: dcard-csv
+        path: '*.csv'
