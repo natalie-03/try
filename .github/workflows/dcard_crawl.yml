@@ -1,40 +1,39 @@
-name: Dcard Crawl
+name: Dcard Crawler
 
 on:
-  workflow_dispatch: # 可手動觸發
+  workflow_dispatch:   # 可以手動觸發
   schedule:
-    - cron: '0 10 * * *'  # 每天 18:00 台北時間 (UTC+8 → 10:00 UTC)
+    - cron: '0 18 * * *'  # 每天 18:00 執行
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.11
+        python-version: '3.11'
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install selenium undetected-chromedriver pandas webdriver-manager
+        python -m pip install --upgrade pip
+        pip install selenium webdriver-manager undetected-chromedriver keyboard pandas tqdm
 
-    - name: Create data folder
-      run: |
-        mkdir -p data
+    - name: Debug: list files
+      run: ls -R
 
     - name: Run Dcard crawler
       run: |
+        mkdir -p data
         python scripts/Dcard_crawler.py data/
+      working-directory: ${{ github.workspace }}
 
-    - name: Commit and push CSV files
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git add data/*.csv
-        git commit -m "Update crawled CSVs [skip ci]" || echo "No changes to commit"
-        git push origin main
+    - name: Upload crawled data
+      uses: actions/upload-artifact@v4
+      with:
+        name: dcard-data
+        path: data/
