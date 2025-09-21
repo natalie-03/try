@@ -10,30 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install selenium webdriver-manager undetected-chromedriver keyboard pandas tqdm
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager undetected-chromedriver keyboard pandas tqdm
 
-    - name: Debug: list files
-      run: ls -R
+      - name: Debug: list files
+        run: ls -R
 
-    - name: Run Dcard crawler
-      run: |
-        mkdir -p data
-        python scripts/Dcard_crawler.py data/
-      working-directory: ${{ github.workspace }}
+      - name: Run Dcard crawler
+        run: |
+          mkdir -p data
+          python scripts/Dcard_crawler.py data/
+        working-directory: ${{ github.workspace }}
 
-    - name: Upload crawled data
-      uses: actions/upload-artifact@v4
-      with:
-        name: dcard-data
-        path: data/
+      - name: Upload crawled data
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcard-data
+          path: data/
