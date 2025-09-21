@@ -1,45 +1,40 @@
-name: Dcard 爬蟲 & CSV 清理
+name: Dcard Crawl
 
 on:
-  workflow_dispatch:  # 手動觸發
+  workflow_dispatch: # 可手動觸發
   schedule:
-    - cron: '0 18 * * *'  # 每天 18:00 自動執行
+    - cron: '0 10 * * *'  # 每天 18:00 台北時間 (UTC+8 → 10:00 UTC)
 
 jobs:
-  crawl_and_clean:
+  crawl:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 取得 repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # 2. 安裝 Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
 
-      # 3. 安裝套件
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install selenium webdriver-manager undetected-chromedriver pandas tqdm keyboard
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install selenium undetected-chromedriver pandas webdriver-manager
 
-      # 4. 執行爬蟲程式
-      - name: Run Dcard crawler
-        run: |
-          python scripts/Dcard爬蟲.py
+    - name: Create data folder
+      run: |
+        mkdir -p data
 
-      # 5. 清理 CSV
-      - name: Clean CSV files
-        run: |
-          python scripts/clean_csv.py
+    - name: Run Dcard crawler
+      run: |
+        python scripts/Dcard_crawl.py data/
 
-      # 6. 上傳結果 CSV 為 artifact
-      - name: Upload CSV files
-        uses: actions/upload-artifact@v4
-        with:
-          name: dcard-csv
-          path: |
-            *.csv
+    - name: Commit and push CSV files
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add data/*.csv
+        git commit -m "Update crawled CSVs [skip ci]" || echo "No changes to commit"
+        git push origin main
